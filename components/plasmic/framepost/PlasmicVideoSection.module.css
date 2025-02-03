@@ -97,13 +97,9 @@
   background: #00000080;
   transition-property: opacity;
   transition-duration: 0.8s;
-  opacity: 0;
   pointer-events: none;
   -webkit-transition-property: opacity;
   -webkit-transition-duration: 0.8s;
-}
-.overlaytab1 {
-  opacity: 1;
 }
 .freeBox__cnqec {
   display: block;

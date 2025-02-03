@@ -568,6 +568,39 @@ function PlasmicVideoSection__RenderFunc(props: {
           className={classNames(projectcss.all, sty.overlay, {
             [sty.overlaytab1]: hasVariant($state, "tab1", "tab1")
           })}
+          style={
+            hasVariant($state, "tab1", "tab1")
+              ? (() => {
+                  try {
+                    return {
+                      opacity: "100%"
+                    };
+                  } catch (e) {
+                    if (
+                      e instanceof TypeError ||
+                      e?.plasmicType === "PlasmicUndefinedDataError"
+                    ) {
+                      return undefined;
+                    }
+                    throw e;
+                  }
+                })()
+              : (() => {
+                  try {
+                    return {
+                      opacity: "0%"
+                    };
+                  } catch (e) {
+                    if (
+                      e instanceof TypeError ||
+                      e?.plasmicType === "PlasmicUndefinedDataError"
+                    ) {
+                      return undefined;
+                    }
+                    throw e;
+                  }
+                })()
+          }
         />
 
         {(hasVariant($state, "tab1", "tab1") ? true : false) ? (
