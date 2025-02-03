@@ -38,34 +38,14 @@
       "lang": "ts",
       "fileLocks": [
         {
-          "type": "image",
-          "assetId": "vVpgJw_yKPaM",
-          "checksum": "a9a4826b736b6298ea828f918857a39d"
-        },
-        {
-          "type": "image",
-          "assetId": "sjJOPKfOnQch",
-          "checksum": "6a271c82da810fc189b1d949b26329fe"
-        },
-        {
-          "type": "image",
-          "assetId": "cpsKLFtgUy_4",
-          "checksum": "a7bf6122996524013e119e79187e3950"
-        },
-        {
-          "type": "image",
-          "assetId": "Dx0e9mLMHNzh",
-          "checksum": "aa1b0c81e88d1f23e9f1ecfd5fb69625"
-        },
-        {
-          "type": "image",
-          "assetId": "KNYRn4eohrvr",
-          "checksum": "07c124e36bbfcdcc5583711eb644462f"
-        },
-        {
           "type": "globalVariant",
           "assetId": "EQrnWbgDSOfW",
           "checksum": "046b26b24df772343109d901a34f704c"
+        },
+        {
+          "assetId": "rNmfjZwLNAMxE9BRKEpbLN",
+          "type": "projectCss",
+          "checksum": "34fb70baeb3a3c56b31cc9e42ebae606"
         },
         {
           "type": "renderModule",
@@ -178,9 +158,29 @@
           "checksum": "80cd84a2dba105d7a38c25491ebfc3df"
         },
         {
-          "assetId": "rNmfjZwLNAMxE9BRKEpbLN",
-          "type": "projectCss",
-          "checksum": "34fb70baeb3a3c56b31cc9e42ebae606"
+          "type": "image",
+          "assetId": "vVpgJw_yKPaM",
+          "checksum": "a9a4826b736b6298ea828f918857a39d"
+        },
+        {
+          "type": "image",
+          "assetId": "sjJOPKfOnQch",
+          "checksum": "6a271c82da810fc189b1d949b26329fe"
+        },
+        {
+          "type": "image",
+          "assetId": "cpsKLFtgUy_4",
+          "checksum": "a7bf6122996524013e119e79187e3950"
+        },
+        {
+          "type": "image",
+          "assetId": "Dx0e9mLMHNzh",
+          "checksum": "aa1b0c81e88d1f23e9f1ecfd5fb69625"
+        },
+        {
+          "type": "image",
+          "assetId": "KNYRn4eohrvr",
+          "checksum": "07c124e36bbfcdcc5583711eb644462f"
         }
       ],
       "codegenVersion": "0.0.1"
