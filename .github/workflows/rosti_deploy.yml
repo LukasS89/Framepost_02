@@ -1,9 +1,10 @@
 name: Deploy into Roští.cz
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Sync, build and deploy Plasmic app"] # Replace with your Plasmic workflow name
+    types:
+      - completed
 
 jobs:
   deploy:
@@ -30,11 +31,9 @@ jobs:
           ${{ secrets.ENV }}
           EOF
       - name: Install Dependencies
-        run: |
-          npm install
+        run: npm install
       - name: Build
-        run: |
-          npm run build
+        run: npm run build
       - name: Setup Node.js
         run: |
           ssh -o UserKnownHostsFile=./known_hosts -p $PORT $USER@$HOST /usr/local/bin/rosti node $NODE_VERSION
