@@ -1,0 +1,93 @@
+name: Deploy into Roští.cz
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HOST: ssh.rosti.cz
+      USER: app
+      PORT: 13124
+      NODE_VERSION: 22.9.0
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "22.9.0"
+      - uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.ROSTI_DEPLOY_SSH_KEY }}
+      - name: Setup hostkey
+        run: |
+          echo "ssh.rosti.cz ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCSa+XIGBXvsDtD3v2UuxY3LKBY5vvsj34t86jNGExTq/XnPDqQsZmZGNOww9nnmx3Ao/I5lx9sL9/Y4ibsSCTMHceciDgzTQccuBXACZAeeMFu5dhyonG5jKsUQVCkKLIoPBCPszFKqPIHaYDb++nsOzt2PcJdsyKXmNBAdng9hdVE69K9wXsXs6a6ym6uQSPi3AhsbCpXT5ieERRLEvk8wUicCoyfm3XV0Ek4Drn1u0tzDEGqENIIqX3qAfc8WwFlqB0BLzg4FN1xFld/Em9lX/pht85Y9QBpP7SjMsLhIkR9Z+BWc9vJC4Hozvp+vHfXdjfs6fUUhivEn6+75J0H" > ./known_hosts
+      - name: Create .env
+        run: |
+          cat << EOF > .env
+          ${{ secrets.ENV }}
+          EOF
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: Build
+        run: |
+          npm run build
+      - name: Setup Node.js
+        run: |
+          ssh -o UserKnownHostsFile=./known_hosts -p $PORT $USER@$HOST /usr/local/bin/rosti node $NODE_VERSION
+      - name: Setup Supervisord
+        run: |
+          cat << EOF > rosti.app.conf
+          [program:app]
+          command=/srv/bin/primary_tech/npm start
+          environment=PATH="/srv/bin/primary_tech:/usr/local/bin:/usr/bin:/bin:/srv/.npm-packages/bin"
+          stopasgroup=true
+          directory=/srv/app
+          process_name=app
+          autostart=true
+          autorestart=true
+          stdout_logfile=/srv/log/node.log
+          stdout_logfile_maxbytes=2MB
+          stdout_logfile_backups=5
+          stdout_capture_maxbytes=2MB
+          stdout_events_enabled=false
+          redirect_stderr=true
+          EOF
+          scp -o UserKnownHostsFile=./known_hosts -P $PORT rosti.app.conf $USER@$HOST:/srv/conf/supervisor.d/app.conf
+          rm rosti.app.conf
+      - name: Setup Nginx
+        run: |
+          cat << EOF > rosti.nginx.conf
+          server {
+              listen       0.0.0.0:8000;
+              listen       [::]:8000;
+              location / {
+                  proxy_pass         http://127.0.0.1:8080/;
+                  proxy_redirect     default;
+                  proxy_set_header   X-Real-IP  \$remote_addr;
+                  proxy_set_header   Host       \$host;
+                  add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+                  add_header Pragma "no-cache";
+                  add_header Expires "0";
+              }
+              location /static/ {
+                  alias /srv/app/public/;
+                  add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+                  add_header Pragma "no-cache";
+                  add_header Expires "0";
+              }
+          }        
+          EOF
+          scp -o UserKnownHostsFile=./known_hosts -P $PORT rosti.nginx.conf $USER@$HOST:/srv/conf/nginx.d/app.conf
+          rm rosti.nginx.conf
+      - name: Copy code
+        run: |
+          rsync -ae "ssh -o UserKnownHostsFile=./known_hosts -p $PORT" --delete-after --exclude=.git ./ $USER@$HOST:/srv/app/
+      - name: Apply changes
+        run: |
+          ssh -o UserKnownHostsFile=./known_hosts -p $PORT $USER@$HOST supervisorctl reread
+          ssh -o UserKnownHostsFile=./known_hosts -p $PORT $USER@$HOST supervisorctl restart app
+          ssh -o UserKnownHostsFile=./known_hosts -p $PORT $USER@$HOST supervisorctl restart nginx
